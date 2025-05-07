@@ -1,0 +1,12 @@
+.vs/
+bin/
+obj/
+*.dll
+*.exe
+*.pdb
+*.props
+*.cache
+*.json
+*.cache 
+*.editorconfig
+*.info
