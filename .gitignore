@@ -6,8 +6,8 @@ obj/
 *.pdb
 *.props
 *.cache
-*.json
 *.cache 
 *.editorconfig
 *.info
 Nadwa/Nadwa/appsettings.json
+Nadwa/Nadwa/appsettings.Development.json
