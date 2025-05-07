@@ -1,0 +1,6 @@
+﻿services:
+  nadwa:
+    image: nadwa
+    build:
+      context: .
+      dockerfile: Nadwa/Dockerfile
