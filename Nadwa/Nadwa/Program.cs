@@ -2,7 +2,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Nadwa.Data;
 using Nadwa.Models;
+using Nadwa.Services.ApplicationUser;
 using Nadwa.Services.Caching;
+using Nadwa.Services.Event;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,6 +30,8 @@ builder.Services.AddRazorPages();
 
 
 builder.Services.AddScoped<IRedisCacheService, RedisCacheService>();
+builder.Services.AddScoped<IApplicationUserService, ApplicationUserService>();
+builder.Services.AddScoped<IEventService, EventService>();
 
 var app = builder.Build();
 
