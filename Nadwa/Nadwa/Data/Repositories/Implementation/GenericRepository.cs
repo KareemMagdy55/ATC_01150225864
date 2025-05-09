@@ -18,17 +18,16 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class {
     }
 
 
-    public async Task<T?> GetByIdAsync(string id, Expression<Func<T, bool>>? predicate = null) {
+    public async Task<T?> GetFirstOrDefaultAsync(Expression<Func<T, bool>>? predicate = null) {
         IQueryable<T> query = _dbSet;
         var cacheKey = $"{typeof(T).Name} " +
-                       $"{id}" +
                        $"{predicate?.Body.ToString()}_";
-        
+
         var cached = _redisCacheService.GetData<T>(cacheKey);
-        
+
         if (cached is not null) return cached;
-        
-        
+
+
         if (predicate is not null) {
             query = query.Where(predicate);
         }
