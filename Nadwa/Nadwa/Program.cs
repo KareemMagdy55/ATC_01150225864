@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Nadwa.Data;
 using Nadwa.Models;
+using Nadwa.Services.Caching;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,8 +16,18 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
+
+builder.Services.AddStackExchangeRedisCache(option => {
+        option.Configuration = builder.Configuration.GetConnectionString("Redis");
+        option.InstanceName = "Nadwa_";
+
+    }
+);
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
+
+
+builder.Services.AddScoped<IRedisCacheService, RedisCacheService>();
 
 var app = builder.Build();
 
