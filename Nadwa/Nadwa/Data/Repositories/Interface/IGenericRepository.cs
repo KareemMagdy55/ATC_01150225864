@@ -15,7 +15,7 @@ public interface IGenericRepository<T> where T : class {
         int page = 1,
         int pageSize = 10,
         Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
-        Expression<Func<T, bool>>? filter = null,
+        Expression<Func<T, bool>>? predicate = null,
         Expression<Func<T, object>>? groupBy = null);
     
 

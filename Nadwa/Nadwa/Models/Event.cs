@@ -29,7 +29,6 @@ public class Event {
     public DateTime CreatedAt { get; set; } = DateTime.Now;
     
     public DateTime? UpdatedAt { get; set; }
-    
-    [Required] public bool IsDeleted { get; set; } = false;
+
     
 }

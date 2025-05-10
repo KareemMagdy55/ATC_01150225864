@@ -1,4 +1,7 @@
-﻿using Nadwa.Data.Repositories.Interface;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Nadwa.Data.Repositories.Interface;
+using Nadwa.Models;
 using Nadwa.Services.Caching;
 
 namespace Nadwa.Data.Repositories.Implementation;
@@ -30,4 +33,6 @@ public class UnitOfWork : IUnitOfWork {
     public async Task<int> CompleteAsync() {
         return await _context.SaveChangesAsync();
     }
+    
+  
 }

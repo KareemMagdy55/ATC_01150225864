@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Nadwa.Data;
+using Nadwa.Data.Repositories.Implementation;
 using Nadwa.Data.Repositories.Interface;
 using Nadwa.Models;
 using Nadwa.Services.ApplicationUser;
