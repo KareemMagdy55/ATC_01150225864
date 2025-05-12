@@ -6,6 +6,7 @@ public class Messages {
         public static string UserDelete = "User added successfully.";
         public static string BookingEvent = "Congratulations, Event Booked Successfully";
         public static string CancelEvent = "Event canceled Successfully";
+        public static string BalanceUpdate = "Balance updated Successfully";
     }
 
     public static class Fail {
@@ -15,5 +16,8 @@ public class Messages {
         public static string BookingEvent = "User cannot book this event";
         public static string BookingHighCostEvent = "User cannot book this event due to low balance";
         public static string CancelEvent = "Event cannot be canceled";
+        public static string BalanceUpdate = "Balance cannot be updated";
+
+
     }
 }

@@ -23,14 +23,26 @@ public class ApplicationUserService : IApplicationUserService {
             .GetAllAsync();
     }
 
-    public async Task<object> GetUserByIdAsync(string id) {
+    public async Task<Models.ApplicationUser?> GetUserByIdAsync(string id) {
         var res = await _unitOfWork
             .ApplicationUserRepository
             .GetFirstOrDefaultAsync(predicate: u => u.Id == id);
-        if (res is null)
-            return Messages.Fail.UserDelete;
 
         return res;
+    }
+
+    public async Task<string> UpdateUserBalance(Models.ApplicationUser? updatedApplicationUser) {
+        var user = await _unitOfWork
+            .ApplicationUserRepository
+            .GetFirstOrDefaultAsync(predicate: u => u.Id == updatedApplicationUser.Id);
+
+        if (user is null) return Messages.Fail.BalanceUpdate;
+        user.Balance = updatedApplicationUser.Balance;
+        user.UpdatedAt = DateTime.Now;
+
+        _unitOfWork.ApplicationUserRepository.Update(user);
+        await _unitOfWork.CompleteAsync();
+        return Messages.Success.BalanceUpdate;
     }
 
 
@@ -50,6 +62,7 @@ public class ApplicationUserService : IApplicationUserService {
         if (applicationUser is null)
             return Messages.Fail.UserDelete;
 
+        
         _unitOfWork
             .ApplicationUserRepository
             .Remove(applicationUser);
@@ -58,7 +71,7 @@ public class ApplicationUserService : IApplicationUserService {
         return Messages.Success.UserDelete;
     }
 
-    public async Task<string> BookEvent(Models.ApplicationUser? applicationUser, Models.Event? e) {
+    public async Task<string> BookEventAsync(Models.ApplicationUser? applicationUser, Models.Event? e) {
         if (applicationUser is null || e is null)
             return Messages.Fail.BookingEvent;
 
@@ -70,12 +83,17 @@ public class ApplicationUserService : IApplicationUserService {
         applicationUser.Balance -= e.Price;
 
         e.Attendees.Add(applicationUser);
+        e.UpdatedAt = DateTime.Now;
+        applicationUser.UpdatedAt = DateTime.Now;
 
+
+        _unitOfWork.EventRepository.Update(e);
+        _unitOfWork.ApplicationUserRepository.Update(applicationUser);
         await _unitOfWork.CompleteAsync();
         return Messages.Success.BookingEvent;
     }
 
-    public async Task<string> CancelEvent(Models.ApplicationUser? applicationUser, Models.Event? e) {
+    public async Task<string> CancelEventAsync(Models.ApplicationUser? applicationUser, Models.Event? e) {
         if (applicationUser is null || e is null)
             return Messages.Fail.CancelEvent;
 
@@ -84,7 +102,13 @@ public class ApplicationUserService : IApplicationUserService {
 
         e.Attendees.Remove(applicationUser);
 
+        e.UpdatedAt = DateTime.Now;
+        applicationUser.UpdatedAt = DateTime.Now;
+
+
+        _unitOfWork.EventRepository.Update(e);
+        _unitOfWork.ApplicationUserRepository.Update(applicationUser);
         await _unitOfWork.CompleteAsync();
-        return Messages.Success.BookingEvent;
+        return Messages.Success.CancelEvent;
     }
 }
