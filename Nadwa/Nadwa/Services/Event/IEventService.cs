@@ -1,5 +1,30 @@
 ﻿namespace Nadwa.Services.Event;
 
-public interface IEventService {
-    
+public interface IEventService
+{
+    Task<IEnumerable<Models.Event>>? GetEventsPageAsync(int page = 1);
+    Task<IEnumerable<Models.Event>>? GetAllEventsAsync();
+    Task<Models.Event?> GetEventByIdAsync(string id);
+    Task<string> UpdateEvent(Models.Event? updatedEvent, string? imagePath = null);
+    Task<string> AddEventAsync(Models.Event? e, string? imagePath = null);
+    Task<string> DeleteEvent(Models.Event? e);
+
+    Task<IEnumerable<Models.Event>> GetEventsPagedUsingSearchQueryAsync(
+        int page = 1,
+        string? searchQuery = null,
+        IEnumerable<Models.Event>? events = null);
+
+    Task<IEnumerable<Models.Event>> GetEventsPagedUsingPriceFilter(
+        decimal lowestPrice = decimal.Zero,
+        decimal highestPrice = 10000000000,
+        int page = 1,
+        IEnumerable<Models.Event>? events = null);
+
+    Task<IEnumerable<Models.Event>> GetEventsPagedUsingDateRangeAsync(
+        int page = 1,
+        DateTime? from = null,
+        DateTime? to = null,
+        IEnumerable<Models.Event>? events = null);
+
+    Task<IEnumerable<Models.ApplicationUser>?> GetEventAttendeesPagedAsync(Models.Event e, int page = 1);
 }

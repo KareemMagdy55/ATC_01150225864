@@ -19,14 +19,15 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class {
     }
 
 
-    public async Task<T?> GetFirstOrDefaultAsync(Expression<Func<T, bool>>? predicate = null) {
-        IQueryable<T> query = _dbSet;
+    public async Task<T?> GetFirstOrDefaultAsync(Expression<Func<T, bool>>? predicate = null, IEnumerable<T>? enumerable = null) {
         var cacheKey = $"{typeof(T).Name} " +
                        $"{predicate?.Body.ToString()}_";
 
         var cached = _redisCacheService.GetData<T>(cacheKey);
 
         if (cached is not null) return cached;
+
+        IQueryable<T> query = enumerable is null ? _context.Set<T>() : enumerable.AsQueryable();
 
 
         if (predicate is not null) {
@@ -42,7 +43,9 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class {
     public async Task<IEnumerable<T>> GetAllAsync(
         Expression<Func<T, bool>>? predicate = null,
         Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
-        Expression<Func<T, object>>? groupBy = null) {
+        Expression<Func<T, object>>? groupBy = null
+        , IEnumerable<T>? enumerable = null) {
+        
         var cacheKey = $"{typeof(T).Name}_All_" +
                        $"{predicate?.Body.ToString()}_" +
                        $"{orderBy?.Method.Name}_" +
@@ -52,7 +55,7 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class {
 
         if (cached is not null) return cached;
 
-        IQueryable<T> query = _context.Set<T>();
+        IQueryable<T> query = enumerable is null ? _context.Set<T>() : enumerable.AsQueryable();
 
         if (predicate != null)
             query = query.Where(predicate);
@@ -71,7 +74,7 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class {
 
     public async Task<IEnumerable<T>> GetPagedAsync(int page = 1, int pageSize = 4,
         Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, Expression<Func<T, bool>>? predicate = null,
-        Expression<Func<T, object>>? groupBy = null) {
+        Expression<Func<T, object>>? groupBy = null, IEnumerable<T>? enumerable = null) {
         var cacheKey = $"{typeof(T).Name}_All_" +
                        $"{page}" +
                        $"{predicate?.Body.ToString()}_" +
@@ -82,7 +85,8 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class {
 
         if (cached is not null) return cached;
 
-        IQueryable<T> query = _context.Set<T>();
+        IQueryable<T> query;
+        query = enumerable is null ? _context.Set<T>() : enumerable.AsQueryable();
 
         if (predicate is not null)
             query = query.Where(predicate);

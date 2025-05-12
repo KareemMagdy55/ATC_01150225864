@@ -1,3 +1,4 @@
+using CloudinaryDotNet;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Nadwa.Data;
@@ -27,10 +28,18 @@ builder.Services.AddStackExchangeRedisCache(option => {
 
     }
 );
+
+var cloudinary = new Cloudinary( builder.Configuration.GetConnectionString("Cloudinary")) {
+    Api = {
+        Secure = true
+    }
+};
+
+
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 
-
+builder.Services.AddSingleton(cloudinary);
 builder.Services.AddScoped<IRedisCacheService, RedisCacheService>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IApplicationUserService, ApplicationUserService>();
