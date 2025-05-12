@@ -1,6 +1,7 @@
 ﻿using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
 using Nadwa.Data.Repositories.Interface;
+using Nadwa.Models;
 using Nadwa.Utilites;
 
 namespace Nadwa.Services.Event;
@@ -115,11 +116,11 @@ public class EventService : IEventService {
         return results;
     }
 
-    public async Task<IEnumerable<Models.Event>> GetEventsPagedUsingPriceFilter(decimal lowestPrice = decimal.Zero,
-        decimal highestPrice = 10000000000, int page = 1, IEnumerable<Models.Event>? events = null) {
+    public async Task<IEnumerable<Models.Event>> GetEventsPagedUsingPriceFilter(decimal minPrice = decimal.Zero,
+        decimal maxPrice = 10000000000, int page = 1, IEnumerable<Models.Event>? events = null) {
         var results = await _unitOfWork.EventRepository.GetPagedAsync(page,
             predicate: e =>
-                e.Price <= highestPrice && e.Price >= lowestPrice,
+                e.Price <= maxPrice && e.Price >= minPrice,
             enumerable: events
         );
 
@@ -143,5 +144,24 @@ public class EventService : IEventService {
         );
 
         return results;
+    }
+
+    public async Task<IEnumerable<Models.Event>> GetEventsUsingSearchViewModelAsync(
+        SearchQueryViewModel searchQueryViewModel) {
+        var byQuery = await GetEventsPagedUsingSearchQueryAsync(page: searchQueryViewModel.Page,
+            searchQuery: searchQueryViewModel.Query);
+        var byPrice = await GetEventsPagedUsingPriceFilter(minPrice: searchQueryViewModel.MinPrice,
+            maxPrice: searchQueryViewModel.MaxPrice, page: searchQueryViewModel.Page);
+        var byDate = await GetEventsPagedUsingDateRangeAsync(page: searchQueryViewModel.Page,
+            from: searchQueryViewModel.FromDate, to: searchQueryViewModel.ToDate);
+
+        var filtered = await _unitOfWork.EventRepository.GetPagedAsync(
+            page: 1,
+            enumerable:
+            byQuery.Intersect(byPrice)
+                .Intersect(byDate)
+        );
+
+        return filtered;
     }
 }

@@ -15,8 +15,8 @@ public interface IEventService
         IEnumerable<Models.Event>? events = null);
 
     Task<IEnumerable<Models.Event>> GetEventsPagedUsingPriceFilter(
-        decimal lowestPrice = decimal.Zero,
-        decimal highestPrice = 10000000000,
+        decimal minPrice = decimal.Zero,
+        decimal maxPrice = 10000000000,
         int page = 1,
         IEnumerable<Models.Event>? events = null);
 
