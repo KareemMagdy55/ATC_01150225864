@@ -114,12 +114,14 @@ namespace Nadwa.Areas.Identity.Pages.Account
                 }
 
                 ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                TempData["InvalidLoginAttempt"] = "Invalid login attempt";
+                return Page();
             }
 
-            ViewData["InvalidLoginAttempt"] = "Invalid login attempt";
+            TempData["InvalidLoginAttempt"] = "Invalid login attempt";
 
             // If we got this far, something failed, redisplay form
-            return RedirectToPage();
+            return Page();
         }
     }
 }

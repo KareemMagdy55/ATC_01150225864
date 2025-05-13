@@ -26,7 +26,7 @@ public class Event {
     public virtual ICollection<ApplicationUser>? Attendees { get; set; } = new List<ApplicationUser>();
     
     [Required]
-    public DateTime CreatedAt { get; set; } = DateTime.Now;
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     
     public DateTime? UpdatedAt { get; set; }
 

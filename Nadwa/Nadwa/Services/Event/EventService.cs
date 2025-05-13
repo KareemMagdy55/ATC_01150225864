@@ -49,7 +49,7 @@ public class EventService : IEventService {
         e.Venue = updatedEvent.Venue;
         e.Description = updatedEvent.Description;
         e.Date = updatedEvent.Date;
-        e.UpdatedAt = DateTime.Now;
+        e.UpdatedAt = DateTime.UtcNow;
         if (imagePath != null) {
             var uploadParams = new ImageUploadParams() {
                 File = new FileDescription(imagePath)

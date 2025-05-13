@@ -38,7 +38,7 @@ public class ApplicationUserService : IApplicationUserService {
 
         if (user is null) return Messages.Fail.BalanceUpdate;
         user.Balance = updatedApplicationUser.Balance;
-        user.UpdatedAt = DateTime.Now;
+        user.UpdatedAt = DateTime.UtcNow;
 
         _unitOfWork.ApplicationUserRepository.Update(user);
         await _unitOfWork.CompleteAsync();
@@ -83,8 +83,8 @@ public class ApplicationUserService : IApplicationUserService {
         applicationUser.Balance -= e.Price;
 
         e.Attendees.Add(applicationUser);
-        e.UpdatedAt = DateTime.Now;
-        applicationUser.UpdatedAt = DateTime.Now;
+        e.UpdatedAt = DateTime.UtcNow;
+        applicationUser.UpdatedAt = DateTime.UtcNow;
 
 
         _unitOfWork.EventRepository.Update(e);
@@ -102,8 +102,8 @@ public class ApplicationUserService : IApplicationUserService {
 
         e.Attendees.Remove(applicationUser);
 
-        e.UpdatedAt = DateTime.Now;
-        applicationUser.UpdatedAt = DateTime.Now;
+        e.UpdatedAt = DateTime.UtcNow;
+        applicationUser.UpdatedAt = DateTime.UtcNow;
 
 
         _unitOfWork.EventRepository.Update(e);
