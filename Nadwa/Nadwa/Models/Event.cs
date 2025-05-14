@@ -10,7 +10,10 @@ public class Event {
     public string Name { get; set; }
 
     [Column(TypeName = "Text")]
-    public string Description { get; set; }
+    public string Description { get; set; } 
+    
+    [Column(TypeName = "Text")]
+    public string Tags { get; set; }
 
     public string Category { get; set; }
 

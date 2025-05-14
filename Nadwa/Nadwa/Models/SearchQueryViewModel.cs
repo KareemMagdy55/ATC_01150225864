@@ -1,8 +1,10 @@
-﻿namespace Nadwa.Models;
+﻿using Microsoft.AspNetCore.Mvc;
+
+namespace Nadwa.Models;
 
 public class SearchQueryViewModel
 {
-    public string? Query { get; set; }
+    public string? Query { get; set; } = String.Empty;
     public decimal MinPrice { get; set; } = decimal.Zero;
     public decimal MaxPrice { get; set; } = 1000;
     public DateTime? FromDate { get; set; } = DateTime.UtcNow;

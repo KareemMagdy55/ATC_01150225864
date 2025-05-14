@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Nadwa.Models;
 using Nadwa.Services.Event;
+using static System.DateTime;
+using static System.Decimal;
 
 namespace Nadwa.Controllers;
 
@@ -12,17 +14,42 @@ public class AdminController : Controller {
     }
 
 
-    public IActionResult Index() {
-        return View();
-    }
-
-    public async Task<IActionResult> ViewEventsPanel(SearchQueryViewModel? query = null) {
-        query ??= new SearchQueryViewModel();
-        var filteredEvents = await _eventService.GetEventsUsingSearchViewModelAsync(query);
-        var lst = filteredEvents;
-        ViewBag.isCountEqualZero = !filteredEvents.Any();
-        ViewBag.lst = filteredEvents;
+    // public IActionResult Index() {
+    //     return View();
+    // }
+ 
+    
+    [HttpGet]
+    public async Task<IActionResult> Index([FromQuery]SearchQueryViewModel? query) {
         
+        var q = HttpContext.Request.Query;
+        string? searchQuery = q["Query"];
+        Decimal.TryParse(q["MinPrice"], out var minPrice);
+        Decimal.TryParse(q["MaxPrice"], out var maxPrice);
+        DateTime.TryParse(q["FromDate"], out var fromDate);
+        DateTime.TryParse(q["ToDate"], out var toDate);
+        int.TryParse(q["Page"], out var page);
+        
+        
+        
+        var searchViewModel = new SearchQueryViewModel
+        {
+            Query = searchQuery,
+            MinPrice = minPrice,
+            MaxPrice = maxPrice,
+            FromDate = fromDate,
+            ToDate = toDate,
+            Page = page
+        };
+        if (page == 0) searchViewModel = new SearchQueryViewModel();
+        
+        if (ModelState.IsValid) {
+            Console.WriteLine("Query : " + query?.Query);
+            Console.WriteLine("Max price : " + query?.MaxPrice);
+            ViewBag.lst = await _eventService.GetEventsUsingSearchViewModelAsync(searchViewModel);
+        }
+
+
         return View(query);
     }
 }
