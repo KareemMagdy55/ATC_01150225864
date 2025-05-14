@@ -15,10 +15,10 @@ public class AdminController : Controller {
     }
 
 
-    public async Task<IActionResult> CreateEvent(Event e) {
+    public async Task<IActionResult> CreateEvent(Event e, IFormFile? file ) {
         if (!ModelState.IsValid) return View(e);
 
-        TempData["Message"] =  await _eventService.AddEventAsync(e);
+        TempData["Message"] =  await _eventService.AddEventAsync(e, file);
         return RedirectToAction("Index");
     }
  
@@ -45,7 +45,7 @@ public class AdminController : Controller {
             ToDate = toDate,
             Page = page
         };
-        if (page == 0) searchViewModel = new SearchQueryViewModel();
+        if (q.Count == 0) searchViewModel = new SearchQueryViewModel();
         
         if (ModelState.IsValid) {
             Console.WriteLine("Query : " + query?.Query);

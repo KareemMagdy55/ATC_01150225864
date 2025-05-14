@@ -6,8 +6,8 @@ public interface IEventService {
     Task<IEnumerable<Models.Event>>? GetEventsPageAsync(int page = 1);
     Task<IEnumerable<Models.Event>>? GetAllEventsAsync();
     Task<Models.Event?> GetEventByIdAsync(string id);
-    Task<string> UpdateEvent(Models.Event? updatedEvent, string? imagePath = null);
-    Task<string> AddEventAsync(Models.Event? e, string? imagePath = null);
+    Task<string> UpdateEvent(Models.Event? updatedEvent, IFormFile? file);
+    Task<string> AddEventAsync(Models.Event? e, IFormFile? file);
     Task<string> DeleteEvent(Models.Event? e);
 
     Task<IEnumerable<Models.Event>> GetEventsPagedUsingSearchQueryAsync(

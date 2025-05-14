@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
+using Microsoft.DotNet.Scaffolding.Shared.Messaging;
 using Microsoft.IdentityModel.Tokens;
 using Nadwa.Data.Repositories.Interface;
 using Nadwa.Models;
@@ -11,6 +12,7 @@ namespace Nadwa.Services.Event;
 public class EventService : IEventService {
     private readonly IUnitOfWork _unitOfWork;
     private readonly Cloudinary _cloudinary;
+
 
     public EventService(IUnitOfWork unitOfWork, Cloudinary cloudinary) {
         _unitOfWork = unitOfWork;
@@ -39,7 +41,7 @@ public class EventService : IEventService {
     }
 
 
-    public async Task<string> UpdateEvent(Models.Event? updatedEvent, string? imagePath = null) {
+    public async Task<string> UpdateEvent(Models.Event? updatedEvent, IFormFile? file) {
         var e = await _unitOfWork
             .EventRepository
             .GetFirstOrDefaultAsync(predicate: u => u.Id == updatedEvent.Id);
@@ -52,40 +54,54 @@ public class EventService : IEventService {
         e.Description = updatedEvent.Description;
         e.Date = updatedEvent.Date;
         e.UpdatedAt = DateTime.UtcNow;
-        if (imagePath != null) {
-            var uploadParams = new ImageUploadParams() {
-                File = new FileDescription(imagePath)
-            };
+        
+        var deletionParams = new DeletionParams(e.ImageId);
+         await _cloudinary.DestroyAsync(deletionParams);
+        
+         if (file != null)
+         {
+             var fileName = Guid.NewGuid().ToString();
+             var extension = Path.GetExtension(file.FileName);
+             if (extension is not ("jpg" or "png" or "jpeg"))
+                 return Messages.Fail.EventUpdate;
+    
+             var uploadParams = new ImageUploadParams
+             {
+                 File = new FileDescription(fileName + extension, file.OpenReadStream())
+             };
 
-            var uploadResult = await _cloudinary.UploadAsync(uploadParams);
-            e.ImageUrl = uploadResult.SecureUrl.ToString();
-        }
+             var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+             e.ImageUrl = uploadResult.SecureUrl.ToString();
+             e.ImageId = uploadResult.PublicId.ToString();
+         }
 
         _unitOfWork.EventRepository.Update(e);
         await _unitOfWork.CompleteAsync();
         return Messages.Success.EventUpdate;
     }
 
-
-    public async Task<string> AddEventAsync(Models.Event? e, string? imagePath = null) {
+    public async Task<string> AddEventAsync(Models.Event? e, IFormFile? file) {
         if (e is null)
             return Messages.Fail.AddEvent;
 
         e.Date = DateTime.SpecifyKind(e.Date, DateTimeKind.Local).ToUniversalTime();
-
-
-        if (e.Date.Day < DateTime.UtcNow.Day && e.Date.Month < DateTime.UtcNow.Month &&
-            e.Date.Year < DateTime.UtcNow.Year)
-            return Messages.Fail.AddEventMonth;
-        if (imagePath is null && e.ImageUrl is not null) imagePath = e.ImageUrl;
-        if (imagePath is not null) {
-            var uploadParams = new ImageUploadParams() {
-                File = new FileDescription(imagePath)
+        
+        if (file != null)
+        {
+            var fileName = Guid.NewGuid().ToString();
+            var extension = Path.GetExtension(file.FileName);
+    
+            var uploadParams = new ImageUploadParams
+            {
+                File = new FileDescription(fileName + extension, file.OpenReadStream())
             };
 
             var uploadResult = await _cloudinary.UploadAsync(uploadParams);
             e.ImageUrl = uploadResult.SecureUrl.ToString();
+            e.ImageId = uploadResult.PublicId.ToString();
         }
+
+
 
         await _unitOfWork
             .EventRepository
@@ -105,9 +121,8 @@ public class EventService : IEventService {
             }
         }
 
-        // _cloudinary.Destroy(new DeletionParams() {
-        //     ResourceType = ResourceType.Image
-        // })
+        var deletionParams = new DeletionParams(e.ImageId);
+        var result = await _cloudinary.DestroyAsync(deletionParams);
         _unitOfWork
             .EventRepository
             .Remove(e);

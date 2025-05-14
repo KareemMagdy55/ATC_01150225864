@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Nadwa.Validators;
 
 namespace Nadwa.Models;
 
@@ -17,13 +18,19 @@ public class Event {
 
     public string Category { get; set; }
 
-    [Required] public DateTime Date { get; set; } = DateTime.UtcNow;
 
     public string Venue { get; set; }
 
+    [Required(ErrorMessage = "Event date is required.")]
+    [DateValidator]
+    public DateTime Date { get; set; }
+
+    [Required(ErrorMessage = "Price is required.")]
+    [Range(0, double.MaxValue, ErrorMessage = "Price must be a non-negative value.")]
     public decimal Price { get; set; }
 
     public string? ImageUrl { get; set; }
+    public string? ImageId { get; set; }
     
     public virtual ICollection<ApplicationUser>? Attendees { get; set; } = new List<ApplicationUser>();
     
@@ -37,8 +44,6 @@ public class Event {
         if (obj is not Event other) return false;
         return Id == other.Id;
     }
-
-    public override int GetHashCode() => Id.GetHashCode();
 
     
 }

@@ -106,7 +106,7 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class {
         Expression<Func<T, bool>>? predicate = null,
         Expression<Func<T, object>>? groupBy = null,
         IEnumerable<T>? enumerable = null) {
-        if (page < 0) page = 1;
+        if (page <= 0) page = 1;
         var cacheKey = $"{typeof(T).Name}_Paged_{page}_{pageSize}_" +
                        $"{predicate?.Body.ToString()}_" +
                        $"{orderBy?.Method.Name}_" +
