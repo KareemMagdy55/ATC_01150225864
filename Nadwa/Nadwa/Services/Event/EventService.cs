@@ -71,6 +71,13 @@ public class EventService : IEventService {
         if (e is null)
             return Messages.Fail.AddEvent;
 
+        e.Date = DateTime.SpecifyKind(e.Date, DateTimeKind.Local).ToUniversalTime();
+
+
+        if (e.Date.Day < DateTime.UtcNow.Day && e.Date.Month < DateTime.UtcNow.Month &&
+            e.Date.Year < DateTime.UtcNow.Year)
+            return Messages.Fail.AddEventMonth;
+        if (imagePath is null && e.ImageUrl is not null) imagePath = e.ImageUrl;
         if (imagePath is not null) {
             var uploadParams = new ImageUploadParams() {
                 File = new FileDescription(imagePath)
@@ -98,6 +105,9 @@ public class EventService : IEventService {
             }
         }
 
+        // _cloudinary.Destroy(new DeletionParams() {
+        //     ResourceType = ResourceType.Image
+        // })
         _unitOfWork
             .EventRepository
             .Remove(e);
@@ -116,14 +126,14 @@ public class EventService : IEventService {
                 e.Name.ToLower().Contains(searchQuery) ||
                 e.Category.ToLower().Contains(searchQuery) ||
                 e.Description.ToLower().Contains(searchQuery) ||
-                e.Venue.ToLower().Contains(searchQuery) || 
+                e.Venue.ToLower().Contains(searchQuery) ||
                 e.Tags.ToLower().Contains(searchQuery)
             , enumerable: events
         );
 
         return results;
     }
-    
+
 
     public async Task<IEnumerable<Models.Event>> GetEventsPagedUsingPriceFilter(decimal minPrice = decimal.Zero,
         decimal maxPrice = 10000000000, int page = 1, IEnumerable<Models.Event>? events = null) {
@@ -158,12 +168,14 @@ public class EventService : IEventService {
     public async Task<IEnumerable<Models.Event>> GetEventsUsingSearchViewModelAsync(
         SearchQueryViewModel? searchQueryViewModel) {
         searchQueryViewModel ??= new SearchQueryViewModel();
-        
+
         if (searchQueryViewModel.FromDate.HasValue)
-            searchQueryViewModel.FromDate = DateTime.SpecifyKind(searchQueryViewModel.FromDate.Value, DateTimeKind.Local).ToUniversalTime();
+            searchQueryViewModel.FromDate = DateTime
+                .SpecifyKind(searchQueryViewModel.FromDate.Value, DateTimeKind.Local).ToUniversalTime();
 
         if (searchQueryViewModel.ToDate.HasValue)
-            searchQueryViewModel.ToDate = DateTime.SpecifyKind(searchQueryViewModel.ToDate.Value, DateTimeKind.Local).ToUniversalTime();
+            searchQueryViewModel.ToDate = DateTime.SpecifyKind(searchQueryViewModel.ToDate.Value, DateTimeKind.Local)
+                .ToUniversalTime();
 
         var byQuery = await GetEventsPagedUsingSearchQueryAsync(page: searchQueryViewModel.Page,
             searchQuery: searchQueryViewModel.Query);
@@ -173,7 +185,7 @@ public class EventService : IEventService {
             from: searchQueryViewModel.FromDate, to: searchQueryViewModel.ToDate);
 
         Console.WriteLine(searchQueryViewModel.Query);
-        
+
 
         IEnumerable<Models.Event> lst = byPrice.Intersect(byDate).ToList();
         if (!searchQueryViewModel.Query.IsNullOrEmpty())

@@ -19,7 +19,7 @@
                 NADWA
             </a>
 
-            
+
             <div class="collapse navbar-collapse" id="navbarMain">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
@@ -76,8 +76,11 @@
         const currentTheme = document.body.getAttribute("data-bs-theme");
         const newTheme = currentTheme === "light" ? "dark" : "light";
         setTheme(newTheme);
-        localStorage.setItem("theme", newTheme); 
+        localStorage.setItem("theme", newTheme);
     });
+
+
+ 
 </script>
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>

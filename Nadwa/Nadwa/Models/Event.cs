@@ -17,14 +17,13 @@ public class Event {
 
     public string Category { get; set; }
 
-    [Required]
-    public DateTime Date { get; set; }
+    [Required] public DateTime Date { get; set; } = DateTime.UtcNow;
 
     public string Venue { get; set; }
 
     public decimal Price { get; set; }
 
-    public string ImageUrl { get; set; }
+    public string? ImageUrl { get; set; }
     
     public virtual ICollection<ApplicationUser>? Attendees { get; set; } = new List<ApplicationUser>();
     

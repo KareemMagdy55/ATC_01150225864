@@ -98,6 +98,7 @@
         </a>
     }
 }
+
 <a asp-action="Index" asp-route-Page="@(Model.Page + 1)"
    asp-route-Query="@Model.Query"
    asp-route-MinPrice="@Model.MinPrice"
@@ -107,6 +108,13 @@
    class="btn btn-outline-secondary">
     Next
 </a>
+<div class="mb-2 text-end" style="margin-top: -4vh">
+    <a asp-action="CreateEvent" asp-controller="Admin" class="btn btn-success">
+        <i class="bi bi-plus-circle"></i> Add Event
+    </a>
+</div>
+
+
 
 
 @section Scripts {

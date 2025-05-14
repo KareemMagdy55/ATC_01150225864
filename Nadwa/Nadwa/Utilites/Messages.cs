@@ -29,6 +29,6 @@ public class Messages {
         public static string EventDelete = "Event cannot be deleted";
 
 
-
+        public static string AddEventMonth = "Date is invalid";
     }
 }

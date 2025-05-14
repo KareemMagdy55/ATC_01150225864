@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Nadwa.Models;
 using Nadwa.Services.Event;
+using Nadwa.Utilites;
 using static System.DateTime;
 using static System.Decimal;
 
@@ -14,9 +15,12 @@ public class AdminController : Controller {
     }
 
 
-    // public IActionResult Index() {
-    //     return View();
-    // }
+    public async Task<IActionResult> CreateEvent(Event e) {
+        if (!ModelState.IsValid) return View(e);
+
+        TempData["Message"] =  await _eventService.AddEventAsync(e);
+        return RedirectToAction("Index");
+    }
  
     
     [HttpGet]
