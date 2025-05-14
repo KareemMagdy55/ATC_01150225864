@@ -90,6 +90,11 @@ public class EventService : IEventService {
         if (e is null)
             return Messages.Fail.EventDelete;
 
+        if (e.Date <= DateTime.UtcNow && e.Attendees is not null) {
+            foreach (var user in e.Attendees) {
+                user.Balance += e.Price;
+            }
+        }
 
         _unitOfWork
             .EventRepository
@@ -147,7 +152,9 @@ public class EventService : IEventService {
     }
 
     public async Task<IEnumerable<Models.Event>> GetEventsUsingSearchViewModelAsync(
-        SearchQueryViewModel searchQueryViewModel) {
+        SearchQueryViewModel? searchQueryViewModel) {
+        searchQueryViewModel ??= new SearchQueryViewModel();
+
         var byQuery = await GetEventsPagedUsingSearchQueryAsync(page: searchQueryViewModel.Page,
             searchQuery: searchQueryViewModel.Query);
         var byPrice = await GetEventsPagedUsingPriceFilter(minPrice: searchQueryViewModel.MinPrice,
@@ -155,11 +162,15 @@ public class EventService : IEventService {
         var byDate = await GetEventsPagedUsingDateRangeAsync(page: searchQueryViewModel.Page,
             from: searchQueryViewModel.FromDate, to: searchQueryViewModel.ToDate);
 
+
         var filtered = await _unitOfWork.EventRepository.GetPagedAsync(
             page: 1,
             enumerable:
-            byQuery.Intersect(byPrice)
-                .Intersect(byDate)
+            byQuery
+                .Union(byPrice)
+                .Union(byDate)
+                .Distinct()
+                .ToList()
         );
 
         return filtered;

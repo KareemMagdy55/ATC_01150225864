@@ -29,6 +29,14 @@ public class Event {
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     
     public DateTime? UpdatedAt { get; set; }
+    
+    public override bool Equals(object? obj)
+    {
+        if (obj is not Event other) return false;
+        return Id == other.Id;
+    }
+
+    public override int GetHashCode() => Id.GetHashCode();
 
     
 }

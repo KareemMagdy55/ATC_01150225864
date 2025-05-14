@@ -1,7 +1,8 @@
-﻿namespace Nadwa.Services.Event;
+﻿using Nadwa.Models;
 
-public interface IEventService
-{
+namespace Nadwa.Services.Event;
+
+public interface IEventService {
     Task<IEnumerable<Models.Event>>? GetEventsPageAsync(int page = 1);
     Task<IEnumerable<Models.Event>>? GetAllEventsAsync();
     Task<Models.Event?> GetEventByIdAsync(string id);
@@ -27,4 +28,7 @@ public interface IEventService
         IEnumerable<Models.Event>? events = null);
 
     Task<IEnumerable<Models.ApplicationUser>?> GetEventAttendeesPagedAsync(Models.Event e, int page = 1);
+
+    public Task<IEnumerable<Models.Event>> GetEventsUsingSearchViewModelAsync(
+        SearchQueryViewModel? searchQueryViewModel);
 }
