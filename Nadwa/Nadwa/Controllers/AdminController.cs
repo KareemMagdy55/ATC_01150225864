@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Nadwa.Models;
 using Nadwa.Services.Event;
 using Nadwa.Utilites;
@@ -7,6 +8,7 @@ using static System.Decimal;
 
 namespace Nadwa.Controllers;
 
+[Authorize(Roles = "Admin")]
 public class AdminController : Controller {
     private IEventService _eventService;
 
@@ -50,6 +52,7 @@ public class AdminController : Controller {
         if (ModelState.IsValid) {
             Console.WriteLine("Query : " + query?.Query);
             Console.WriteLine("Max price : " + query?.MaxPrice);
+            ViewBag.lst = new List<Event>();
             ViewBag.lst = await _eventService.GetEventsUsingSearchViewModelAsync(searchViewModel);
         }
 

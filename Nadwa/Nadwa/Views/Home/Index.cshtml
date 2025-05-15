@@ -26,27 +26,30 @@
             }
         }
 
-        
+
         @{
             if (SignInManager.IsSignedIn(User) && User.IsInRole("Admin")) {
-               <a class="btn px-3 py-2 fw-semibold fs-5"
+                <a class="btn px-3 py-2 fw-semibold fs-5"
                    style="background: linear-gradient(to right, #34c759, #30d158); color: white;"
                    asp-area=""
                    asp-controller="Admin"
-                   asp-action="Index"
-                   >
-                    Admin panel
+                   asp-action="Index">
+                    Go to admin panel
                 </a>
-
-            }else if (SignInManager.IsSignedIn(User) && User.IsInRole("User")) {
+            }
+            else if (SignInManager.IsSignedIn(User) && User.IsInRole("User")) {
                 <a class="btn px-3 py-2 fw-semibold fs-5" style="background: linear-gradient(to right, #34c759, #30d158); color: white;" asp-controller="Events" asp-action="Index">
-                    My Events
+                    My events
                 </a>
             }
         }
-        <a class="btn px-3 py-2 fw-semibold fs-5" style="background: linear-gradient(to right, #34c759, #30d158); color: white;" asp-controller="Events" asp-action="Index">
-            Go to All Events
-        </a>
+        @{
+            if (!SignInManager.IsSignedIn(User) || SignInManager.IsSignedIn(User) && User.IsInRole("User")) {
+                <a class="btn px-3 py-2 fw-semibold fs-5" style="background: linear-gradient(to right, #34c759, #30d158); color: white;" asp-controller="Events" asp-action="Index">
+                    see all events
+                </a>
+            }   
+        }
     </div>
 
 

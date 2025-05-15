@@ -2,11 +2,11 @@
 
 @{
     ViewData["Title"] = "Admin events panel";
-    Layout = "_Layout";
+    Layout = "_AdminLayout";
 }
 
-<h2 class="mb-4">Events Management</h2>
-<form asp-action="Index" asp-controller="Admin" method="get" class="row mb-4">
+<h2 class="mb-4" >Events Management</h2>
+<form asp-action="Index" asp-controller="Admin" method="get" class="row mb-4 w-auto h-auto">
     <div class="col-md-4">
         <div class="input-group">
             <input asp-for="Query" class="form-control" placeholder="Search events..."/>
@@ -99,15 +99,19 @@
     }
 }
 
-<a asp-action="Index" asp-route-Page="@(Model.Page + 1)"
-   asp-route-Query="@Model.Query"
-   asp-route-MinPrice="@Model.MinPrice"
-   asp-route-MaxPrice="@Model.MaxPrice"
-   asp-route-FromDate="@Model.FromDate"
-   asp-route-ToDate="@Model.ToDate"
-   class="btn btn-outline-secondary">
-    Next
-</a>
+@if (ViewBag.lst != null && ((IEnumerable<Event>)ViewBag.lst).Any())
+{
+    <a asp-action="Index" asp-route-Page="@(Model.Page + 1)"
+       asp-route-Query="@Model.Query"
+       asp-route-MinPrice="@Model.MinPrice"
+       asp-route-MaxPrice="@Model.MaxPrice"
+       asp-route-FromDate="@Model.FromDate"
+       asp-route-ToDate="@Model.ToDate"
+       class="btn btn-outline-secondary">
+        Next
+    </a>
+}
+
 <div class="mb-2 text-end" style="margin-top: -4vh">
     <a asp-action="CreateEvent" asp-controller="Admin" class="btn btn-success">
         <i class="bi bi-plus-circle"></i> Add Event
