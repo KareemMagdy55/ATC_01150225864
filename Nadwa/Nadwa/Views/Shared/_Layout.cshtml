@@ -21,8 +21,9 @@
     <link rel="stylesheet" href="~/Nadwa.styles.css" asp-append-version="true"/>
 </head>
 <body>
+
 <header>
-    <nav class="navbar navbar-expand-sm navbar-dark border-bottom shadow-sm mb-5" id="navbar" style="background: linear-gradient(to right, #a8510e,#96124e);">      
+    <nav class="navbar navbar-expand-sm navbar-dark border-bottom shadow-sm mb-5" id="navbar" style="background: linear-gradient(to right, #a8510e,#96124e);">
         <div class="container-fluid">
             <a class="navbar-brand position-absolute start-50 translate-middle-x fw-bold text-white text-center" style="font-size: 35px;"
                asp-area="" asp-controller="Home" asp-action="Index">
@@ -35,8 +36,13 @@
                             <i class="bi bi-house-door-fill fs-5"></i>
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" asp-action="NadwaAssistant" asp-controller="Home">
+                            <i class="bi bi-robot fs-5 me-1"></i> AI
+                        </a>
+                    </li>
                 </ul>
-                @if(SignInManager.IsSignedIn(User) && User.IsInRole("User")) {
+                @if (SignInManager.IsSignedIn(User) && User.IsInRole("User")) {
                     <div class="text-white me-3 d-flex align-items-center">
                         <i class="bi bi-wallet2 me-1 fs-5"></i>
                         <span id="userBalance" class="fw-semibold">@((await UserManager.GetUserAsync(User))?.Balance.ToString("C") ?? "$0.00")</span>
@@ -54,16 +60,17 @@
 
 
 </header>
+
 <div class="container">
     <main role="main" class="pb-3">
         <partial name="_Toaster"/>
-        
+
         @RenderBody()
     </main>
 </div>
 
 
-<footer class="border-top footer text-muted" >
+<footer class="border-top footer text-muted">
     <div class="container">
         &copy; 2025 - Nadwa - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
     </div>

@@ -25,14 +25,14 @@ public class UserController : Controller{
     public async Task<IActionResult> EventDetails(string id) {
         return PartialView(await _eventService.GetEventByIdAsync(id));
     }
-    
+    [Authorize(Roles = "User")]
     public async Task<IActionResult> CancelEvent(string id) {
         
         TempData["Message"] = await _applicationUserService.CancelEventAsync(await _userManager.GetUserAsync(User), await _eventService.GetEventByIdAsync(id));
         return RedirectToAction((string?)TempData["USER_CURR_PAGE"]);
         
     }
-    
+    [Authorize(Roles = "User")]
     public async Task<IActionResult> BookEvent(string id) {
         
         var msg = await _applicationUserService.BookEventAsync(await _userManager.GetUserAsync(User), await _eventService.GetEventByIdAsync(id));
@@ -75,7 +75,7 @@ public class UserController : Controller{
         return View(searchViewModel);
     }
     
-    
+    [Authorize(Roles = "User")]
     [HttpGet]
     public async Task<IActionResult> UserEvents([FromQuery] SearchQueryViewModel? query) {
         var q = HttpContext.Request.Query;
