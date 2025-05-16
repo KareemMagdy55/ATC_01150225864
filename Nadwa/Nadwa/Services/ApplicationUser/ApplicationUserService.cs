@@ -1,13 +1,17 @@
-﻿using Nadwa.Data.Repositories.Interface;
+﻿using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Nadwa.Data.Repositories.Interface;
 using Nadwa.Utilites;
+using NuGet.Protocol.Plugins;
 
 namespace Nadwa.Services.ApplicationUser;
 
 public class ApplicationUserService : IApplicationUserService {
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ITempDataProvider _tempDataProvider;
 
-    public ApplicationUserService(IUnitOfWork unitOfWork) {
+    public ApplicationUserService(IUnitOfWork unitOfWork, ITempDataProvider tempDataProvider) {
         _unitOfWork = unitOfWork;
+        _tempDataProvider = tempDataProvider;
     }
 
     public async Task<IEnumerable<Models.ApplicationUser>>? GetUsersPageAsync(int page = 1) {
@@ -77,7 +81,8 @@ public class ApplicationUserService : IApplicationUserService {
 
         if (e.Price > applicationUser.Balance)
             return Messages.Fail.BookingHighCostEvent;
-
+        if (applicationUser.Events.Contains(e))
+            return Messages.Fail.EventAlreadyExist;
 
         applicationUser.Events.Add(e);
         applicationUser.Balance -= e.Price;
@@ -96,6 +101,9 @@ public class ApplicationUserService : IApplicationUserService {
     public async Task<string> CancelEventAsync(Models.ApplicationUser? applicationUser, Models.Event? e) {
         if (applicationUser is null || e is null)
             return Messages.Fail.CancelEvent;
+        if (!applicationUser.Events.Contains(e))
+            return Messages.Fail.EventNotExist;
+        
 
         applicationUser.Events.Remove(e);
         applicationUser.Balance += e.Price;

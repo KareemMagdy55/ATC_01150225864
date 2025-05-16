@@ -10,4 +10,5 @@ public class SearchQueryViewModel
     public DateTime? FromDate { get; set; } = DateTime.UtcNow;
     public DateTime? ToDate { get; set; } = DateTime.UtcNow.AddYears(5);
     public int Page { get; set; } = 1;
+
 }

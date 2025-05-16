@@ -181,7 +181,7 @@ public class EventService : IEventService {
     }
 
     public async Task<IEnumerable<Models.Event>> GetEventsUsingSearchViewModelAsync(
-        SearchQueryViewModel? searchQueryViewModel) {
+        SearchQueryViewModel? searchQueryViewModel, IEnumerable<Models.Event>? events = null) {
         searchQueryViewModel ??= new SearchQueryViewModel();
 
         if (searchQueryViewModel.FromDate.HasValue)
@@ -199,10 +199,10 @@ public class EventService : IEventService {
         var byDate = await GetEventsPagedUsingDateRangeAsync(page: searchQueryViewModel.Page,
             from: searchQueryViewModel.FromDate, to: searchQueryViewModel.ToDate);
 
-        Console.WriteLine(searchQueryViewModel.Query);
 
-
-        IEnumerable<Models.Event> lst = byPrice.Intersect(byDate).ToList();
+        IEnumerable<Models.Event> lst = new List<Models.Event>();
+        lst = events != null ? events.Intersect(byPrice).Intersect(byDate).ToList() : byPrice.Intersect(byDate).ToList();
+        
         if (!searchQueryViewModel.Query.IsNullOrEmpty())
             lst = lst.Intersect(byQuery);
 
@@ -212,7 +212,7 @@ public class EventService : IEventService {
             enumerable:
             lst
         );
-
+        
         return filtered;
     }
 }

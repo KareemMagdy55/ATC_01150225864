@@ -1,5 +1,4 @@
-﻿@using Microsoft.AspNetCore.Authorization
-@using Microsoft.AspNetCore.Identity
+﻿@using Microsoft.AspNetCore.Identity
 @using Microsoft.AspNetCore.Mvc.TagHelpers
 @{
     ViewData["Title"] = "Home Page";
@@ -38,15 +37,15 @@
                 </a>
             }
             else if (SignInManager.IsSignedIn(User) && User.IsInRole("User")) {
-                <a class="btn px-3 py-2 fw-semibold fs-5" style="background: linear-gradient(to right, #34c759, #30d158); color: white;" asp-controller="Events" asp-action="Index">
-                    My events
+                <a class="btn px-3 py-2 fw-semibold fs-5" style="background: linear-gradient(to right, #34c759, #30d158); color: white;" asp-controller="User" asp-action="UserEvents">
+                    Booked events
                 </a>
             }
         }
         @{
             if (!SignInManager.IsSignedIn(User) || SignInManager.IsSignedIn(User) && User.IsInRole("User")) {
-                <a class="btn px-3 py-2 fw-semibold fs-5" style="background: linear-gradient(to right, #34c759, #30d158); color: white;" asp-controller="Events" asp-action="Index">
-                    see all events
+                <a class="btn px-3 py-2 fw-semibold fs-5" style="background: linear-gradient(to right, #34c759, #30d158); color: white;" asp-controller="User" asp-action="AllEvents">
+                    See all events
                 </a>
             }   
         }

@@ -30,5 +30,6 @@ public interface IEventService {
     Task<IEnumerable<Models.ApplicationUser>?> GetEventAttendeesPagedAsync(Models.Event e, int page = 1);
 
     public Task<IEnumerable<Models.Event>> GetEventsUsingSearchViewModelAsync(
-        SearchQueryViewModel? searchQueryViewModel);
+        SearchQueryViewModel? searchQueryViewModel,
+        IEnumerable<Models.Event>? events = null);
 }

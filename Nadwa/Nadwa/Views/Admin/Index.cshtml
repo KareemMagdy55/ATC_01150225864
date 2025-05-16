@@ -5,11 +5,11 @@
     Layout = "_AdminLayout";
 }
 
-<h2 class="mb-4" >Events Management</h2>
+<h2 class="mb-4">Events Management</h2>
 <form asp-action="Index" asp-controller="Admin" method="get" class="row mb-4 w-auto h-auto">
     <div class="col-md-4">
         <div class="input-group">
-            <input asp-for="Query" class="form-control" placeholder="Search events..."/>
+            <input asp-for="Query" class="form-control" placeholder="Search by category, name, venue or description..."/>
         </div>
         <span asp-validation-for="Query" class="text-danger"></span>
     </div>
@@ -53,23 +53,22 @@
     </tr>
     </thead>
     <tbody>
-    @if (ViewBag.lst != null) {
-        foreach (var item in (IEnumerable<Event>)ViewBag.lst) {
+    @if  (ViewBag.lst != null && ((IEnumerable<Event>)ViewBag.lst).Any())  {
+        foreach (var e in (IEnumerable<Event>)ViewBag.lst) {
             Console.WriteLine("Events is not empty");
             <tr>
-                <td>@item.Name</td>
-                <td>@item.Venue</td>
-                <td>@item.Price</td>
-                <td>@item.Date</td>
+                <td>@e.Name</td>
+                <td>@e.Venue</td>
+                <td>@e.Price</td>
+                <td>@e.Date</td>
                 <td>
                     <div class="d-flex gap-2">
-                        <a asp-action="EventDetails" asp-route-id="@item.Id" class="btn btn-sm btn-info">
-                            <i class="bi bi-info-circle"></i> Details
-                        </a>
-                        <a asp-action="EditEvent" asp-route-id="@item.Id" class="btn btn-sm btn-primary">
+                        <a asp-action="EventDetails" asp-route-id="@e.Id" class="btn btn-outline-primary mt-auto view-details-link" data-event-id="@e.Id">Details</a>
+                       
+                        <a asp-action="EditEvent" asp-route-id="@e.Id" class="btn btn-sm btn-primary">
                             <i class="bi bi-pencil-square"></i> Edit
                         </a>
-                        <a asp-controller="Admin" asp-action="DeleteEvent" asp-route-id="@item.Id"
+                        <a asp-controller="Admin" asp-action="DeleteEvent" asp-route-id="@e.Id"
                            class="btn btn-sm btn-danger"
                            onclick="return confirm('Are you sure you want to delete this event?');">
                             <i class="bi bi-trash3"></i> Delete
@@ -80,7 +79,7 @@
             </tr>
         }
     }
-    else {
+    @if (ViewBag.lst == null) {
         <tr>
             <td colspan="5" class="text-center">No events available</td>
         </tr>
@@ -102,8 +101,7 @@
     }
 }
 
-@if (ViewBag.lst != null && ((IEnumerable<Event>)ViewBag.lst).Any())
-{
+@if (ViewBag.lst != null && ((IEnumerable<Event>)ViewBag.lst).Any()) {
     <a asp-action="Index" asp-route-Page="@(Model.Page + 1)"
        asp-route-Query="@Model.Query"
        asp-route-MinPrice="@Model.MinPrice"
@@ -121,10 +119,32 @@
     </a>
 </div>
 
+<div class="modal fade" id="eventDetailsModal" tabindex="-1" role="dialog" aria-labelledby="eventDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content bg-dark text-dark">
+            <div class="modal-body" id="eventDetailsContent">
 
+            </div>
+        </div>
+    </div>
+</div>
 
 
 @section Scripts {
+
+    <script>
+    $(document).ready(function () {
+        $('.view-details-link').on('click', function (e) {
+            e.preventDefault();
+            var eventId = $(this).data('event-id');
+            var url = '@Url.Action("EventDetails", "Admin")?id=' + eventId;
+
+            $('#eventDetailsContent').load(url, function () {
+                $('#eventDetailsModal').modal('show');
+            });
+        });
+    });
+</script>
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }

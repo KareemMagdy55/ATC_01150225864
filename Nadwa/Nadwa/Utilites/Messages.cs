@@ -30,5 +30,7 @@ public class Messages {
 
 
         public static string AddEventMonth = "Date is invalid";
+        public static string EventAlreadyExist { get; set; } = "Event already exist in user events";
+        public static string EventNotExist { get; set; } = "Event not exit in user events";
     }
 }

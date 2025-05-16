@@ -52,7 +52,7 @@ public class AdminController : Controller {
 
     [HttpGet]
     public async Task<IActionResult> EventDetails(string id) {
-        return View(await _eventService.GetEventByIdAsync(id));
+        return PartialView(await _eventService.GetEventByIdAsync(id));
     }
 
     public async Task<IActionResult> CreateEvent(Event e, IFormFile? file) {

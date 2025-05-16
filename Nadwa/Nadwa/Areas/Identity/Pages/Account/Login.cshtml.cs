@@ -20,13 +20,20 @@ namespace Nadwa.Areas.Identity.Pages.Account
 {
     public class LoginModel : PageModel
     {
+        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ILogger<LoginModel> _logger;
 
-        public LoginModel(SignInManager<ApplicationUser> signInManager, ILogger<LoginModel> logger)
+        public LoginModel(SignInManager<ApplicationUser> signInManager,
+            ILogger<LoginModel> logger,
+            UserManager<ApplicationUser> userManager,
+            RoleManager<IdentityRole> roleManager)
         {
             _signInManager = signInManager;
             _logger = logger;
+            _userManager = userManager;
+            _roleManager = roleManager;
         }
 
         /// <summary>
@@ -79,6 +86,45 @@ namespace Nadwa.Areas.Identity.Pages.Account
             
         }
 
+        public async Task InitializeRoles() {
+            var roles = new[] { "Admin", "User" };
+            foreach (var role in roles)
+            {
+                if (!await _roleManager.RoleExistsAsync(role))
+                {
+                    await _roleManager.CreateAsync(new IdentityRole(role));
+                }
+            }
+
+            var userUser = await _userManager.FindByEmailAsync("user@areeb.com");
+            if (userUser == null)
+            {
+                userUser = new ApplicationUser()
+                {
+                    UserName = "user@areeb.com",
+                    Email = "user@areeb.com",
+                    EmailConfirmed = true, 
+                    Balance= 1000
+                };
+                await _userManager.CreateAsync(userUser, "User_123");
+                await _userManager.AddToRoleAsync(userUser, "User");
+            }
+
+            var adminUser = await _userManager.FindByEmailAsync("admin@areeb.com");
+            if (adminUser == null)
+            {
+                adminUser = new ApplicationUser()
+                {
+                    UserName = "admin@areeb.com",
+                    Email = "admin@areeb.com",
+                    EmailConfirmed = true,
+                    Balance= 1000
+
+                };
+                await _userManager.CreateAsync(adminUser, "Admin_123"); 
+                await _userManager.AddToRoleAsync(adminUser, "Admin");
+            }
+        }
         public async Task OnGetAsync(string returnUrl = null)
         {
             if (!string.IsNullOrEmpty(ErrorMessage))
@@ -86,6 +132,7 @@ namespace Nadwa.Areas.Identity.Pages.Account
                 ModelState.AddModelError(string.Empty, ErrorMessage);
             }
 
+            await InitializeRoles();
             returnUrl ??= Url.Content("~/");
 
             // Clear the existing external cookie to ensure a clean login process

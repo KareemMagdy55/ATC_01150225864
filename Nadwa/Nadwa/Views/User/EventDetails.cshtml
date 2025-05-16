@@ -1,6 +1,5 @@
 ﻿@model Nadwa.Models.Event?
 
-
 <div class="overlay-background">
     <div class="details-card">
         <span class="badge-attendees">@Model.Attendees.Count() Attendees</span>
@@ -8,10 +7,10 @@
 
         <div class="event-image-container">
             @if (!string.IsNullOrEmpty(@Model.ImageUrl)) {
-                <img src="@Model.ImageUrl" class="card-img-top rounded-top-4" alt="@Model.Name"/>
+            <img src="@Model.ImageUrl" class="card-img-top rounded-top-4" alt="@Model.Name"/>
             }
             else {
-                <img src="https://placehold.in/400x400" class="card-img-top rounded-top-4"/>
+            <img src="https://placehold.in/400x400" class="card-img-top rounded-top-4"/>
             }
         </div>
         <div class="event-details-content">
@@ -33,46 +32,18 @@
                 <i class="fas fa-dollar-sign text-secondary"></i> <strong>Price:</strong> @Model.Price$
             </p>
 
-            <div class="card bg-dark p-3 mt-3 shadow-sm" style="max-height:200px;overflow-y:scroll;">
-                <p class="card-text" style="font-size: 1.1rem; line-height: 1.6">
+            <div class="card bg-dark text-white p-3 mt-3 shadow-sm" style="max-height:300px; overflow-y:scroll;">
+                <p class="card-text text-white" style="font-size: 1.1rem; line-height: 1.6;">
                     <strong>Description:</strong> @Model.Description
                 </p>
             </div>
 
-            <div class="mt-4 d-flex justify-content-between">
+
+            <div class="mt-4 d-flex justify-content-end">
 
                 <a class="btn btn-dark" onclick="$('#eventDetailsModal').modal('hide')">
                     <i class="fas fa-arrow-left"></i> Close
                 </a>
-
-                <button class="btn btn-info" data-toggle="modal" data-target="#attendeesModal">
-                    <i class="fas fa-users"></i> Preview Attendees
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade attendees-modal" id="attendeesModal" tabindex="-1" role="dialog" aria-labelledby="attendeesModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-scrollable" role="document">
-        <div class="modal-content">
-            <div class="modal-header bg-dark text-black">
-                <h5 class="modal-title" id="attendeesModalLabel">Attendees List</h5>
-            </div>
-            <div class="modal-body">
-                @if (Model?.Attendees?.Any() == true) {
-                    <ul class="list-group">
-                        @foreach (var attendee in Model.Attendees) {
-                            <li class="list-group-item text-black">@attendee.Email</li>
-                        }
-                    </ul>
-                }
-                else {
-                    <p class="text-muted">No attendees yet.</p>
-                }
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
