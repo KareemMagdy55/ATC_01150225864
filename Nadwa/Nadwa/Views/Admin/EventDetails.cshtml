@@ -1,0 +1,89 @@
+﻿@model Nadwa.Models.Event?
+
+@{
+ViewBag.Title = "Event Details";
+Layout = "_AdminLayout";
+}
+
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
+<div class="overlay-background">
+    <div class="details-card">
+        <span class="badge-attendees">@Model.Attendees.Count() Attendees</span>
+
+        <div class="event-image-container">
+            <img src="@(string.IsNullOrEmpty(Model.ImageUrl) ? "https://via.placeholder.com/300x200?text=No+Image" : Model.ImageUrl)"
+                 alt="@Model.Name"
+                 class="event-image"
+                 onerror="this.onerror=null; this.src='https://via.placeholder.com/300x200?text=No+Image';" />
+        </div>
+
+        <div class="event-details-content">
+            <h2 class="mb-3" style="font-size: 2.0rem;">@Model.Name</h2>
+
+            <p style="font-size: 1.1rem; line-height: 1.5; margin-bottom: 0.5rem;">
+                <i class="fas fa-location-dot text-secondary"></i> <strong>Venue:</strong> @Model.Venue
+            </p>
+            <p style="font-size: 1.1rem; line-height: 1.5; margin-bottom: 0.5rem;">
+                <i class="fas fa-tag text-secondary"></i> <strong>Tags:</strong> @Model.Tags
+            </p>
+            <p style="font-size: 1.1rem; line-height: 1.5; margin-bottom: 0.5rem;">
+                <i class="fas fa-layer-group text-secondary"></i> <strong>Category:</strong> @Model.Category
+            </p>
+            <p style="font-size: 1.1rem; line-height: 1.5; margin-bottom: 0.5rem;">
+                <i class="fas fa-calendar-day text-secondary"></i> <strong>Date:</strong> @Model.Date.ToShortDateString()
+            </p>
+            <p style="font-size: 1.1rem; line-height: 1.5; margin-bottom: 0.5rem;">
+                <i class="fas fa-dollar-sign text-secondary"></i> <strong>Price:</strong> @Model.Price
+            </p>
+
+            <div class="card bg-dark p-3 mt-3 shadow-sm" style="max-height:200px;overflow-y:scroll;">
+                <p class="card-text" style="font-size: 1.1rem; line-height: 1.6">
+                    <strong>Description:</strong> @Model.Description
+                </p>
+            </div>
+
+            <div class="mt-4 d-flex justify-content-between">
+                <a href="@Url.Action("Index", "Admin")" class="btn btn-dark">
+                    <i class="fas fa-arrow-left"></i> Back to Panel
+                </a>
+
+                <button class="btn btn-info" data-toggle="modal" data-target="#attendeesModal">
+                    <i class="fas fa-users"></i> Preview Attendees
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade attendees-modal" id="attendeesModal" tabindex="-1" role="dialog" aria-labelledby="attendeesModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-dark text-black">
+                <h5 class="modal-title" id="attendeesModalLabel">Attendees List</h5>
+            </div>
+            <div class="modal-body">
+                @if (Model?.Attendees?.Any() == true)
+                {
+                <ul class="list-group">
+                    @foreach (var attendee in Model.Attendees)
+                    {
+                    <li class="list-group-item text-black">@attendee.Email</li>
+                    }
+                </ul>
+                }
+                else
+                {
+                <p class="text-muted">No attendees yet.</p>
+                }
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>

@@ -52,28 +52,28 @@ public class EventService : IEventService {
         e.Category = updatedEvent.Category;
         e.Venue = updatedEvent.Venue;
         e.Description = updatedEvent.Description;
-        e.Date = updatedEvent.Date;
+        e.Date = DateTime.SpecifyKind(updatedEvent.Date, DateTimeKind.Local).ToUniversalTime();
         e.UpdatedAt = DateTime.UtcNow;
-        
-        var deletionParams = new DeletionParams(e.ImageId);
-         await _cloudinary.DestroyAsync(deletionParams);
-        
-         if (file != null)
-         {
-             var fileName = Guid.NewGuid().ToString();
-             var extension = Path.GetExtension(file.FileName);
-             if (extension is not ("jpg" or "png" or "jpeg"))
-                 return Messages.Fail.EventUpdate;
-    
-             var uploadParams = new ImageUploadParams
-             {
-                 File = new FileDescription(fileName + extension, file.OpenReadStream())
-             };
 
-             var uploadResult = await _cloudinary.UploadAsync(uploadParams);
-             e.ImageUrl = uploadResult.SecureUrl.ToString();
-             e.ImageId = uploadResult.PublicId.ToString();
-         }
+        if (!string.IsNullOrWhiteSpace(e.ImageId)) {
+            var deletionParams = new DeletionParams(e.ImageId);
+            await _cloudinary.DestroyAsync(deletionParams);
+        }
+
+        if (file != null) {
+            var fileName = Guid.NewGuid().ToString();
+            var extension = Path.GetExtension(file.FileName);
+            if (extension is not ("jpg" or "png" or "jpeg"))
+                return Messages.Fail.EventUpdate;
+
+            var uploadParams = new ImageUploadParams {
+                File = new FileDescription(fileName + extension, file.OpenReadStream())
+            };
+
+            var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+            e.ImageUrl = uploadResult.SecureUrl.ToString();
+            e.ImageId = uploadResult.PublicId.ToString();
+        }
 
         _unitOfWork.EventRepository.Update(e);
         await _unitOfWork.CompleteAsync();
@@ -85,14 +85,12 @@ public class EventService : IEventService {
             return Messages.Fail.AddEvent;
 
         e.Date = DateTime.SpecifyKind(e.Date, DateTimeKind.Local).ToUniversalTime();
-        
-        if (file != null)
-        {
+
+        if (file != null) {
             var fileName = Guid.NewGuid().ToString();
             var extension = Path.GetExtension(file.FileName);
-    
-            var uploadParams = new ImageUploadParams
-            {
+
+            var uploadParams = new ImageUploadParams {
                 File = new FileDescription(fileName + extension, file.OpenReadStream())
             };
 
@@ -100,7 +98,6 @@ public class EventService : IEventService {
             e.ImageUrl = uploadResult.SecureUrl.ToString();
             e.ImageId = uploadResult.PublicId.ToString();
         }
-
 
 
         await _unitOfWork
@@ -121,8 +118,11 @@ public class EventService : IEventService {
             }
         }
 
-        var deletionParams = new DeletionParams(e.ImageId);
-        var result = await _cloudinary.DestroyAsync(deletionParams);
+        if (!string.IsNullOrEmpty(e.ImageId)) {
+            var deletionParams = new DeletionParams(e.ImageId);
+            var result = await _cloudinary.DestroyAsync(deletionParams);
+        }
+
         _unitOfWork
             .EventRepository
             .Remove(e);

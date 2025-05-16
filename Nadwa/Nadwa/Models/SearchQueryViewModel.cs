@@ -8,6 +8,6 @@ public class SearchQueryViewModel
     public decimal MinPrice { get; set; } = decimal.Zero;
     public decimal MaxPrice { get; set; } = 1000;
     public DateTime? FromDate { get; set; } = DateTime.UtcNow;
-    public DateTime? ToDate { get; set; } = DateTime.UtcNow.AddDays(365);
+    public DateTime? ToDate { get; set; } = DateTime.UtcNow.AddYears(5);
     public int Page { get; set; } = 1;
 }

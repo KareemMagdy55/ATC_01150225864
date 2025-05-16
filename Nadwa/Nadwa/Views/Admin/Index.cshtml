@@ -60,18 +60,21 @@
                 <td>@item.Name</td>
                 <td>@item.Venue</td>
                 <td>@item.Price</td>
-                <td>@item.Date.ToString("yyyy-MM-dd")</td>
+                <td>@item.Date</td>
                 <td>
                     <div class="d-flex gap-2">
-                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info">
+                        <a asp-action="EventDetails" asp-route-id="@item.Id" class="btn btn-sm btn-info">
                             <i class="bi bi-info-circle"></i> Details
                         </a>
-                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-primary">
+                        <a asp-action="EditEvent" asp-route-id="@item.Id" class="btn btn-sm btn-primary">
                             <i class="bi bi-pencil-square"></i> Edit
                         </a>
-                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">
+                        <a asp-controller="Admin" asp-action="DeleteEvent" asp-route-id="@item.Id"
+                           class="btn btn-sm btn-danger"
+                           onclick="return confirm('Are you sure you want to delete this event?');">
                             <i class="bi bi-trash3"></i> Delete
                         </a>
+
                     </div>
                 </td>
             </tr>
@@ -112,7 +115,7 @@
     </a>
 }
 
-<div class="mb-2 text-end" style="margin-top: -4vh">
+<div class="mb-2 text-end">
     <a asp-action="CreateEvent" asp-controller="Admin" class="btn btn-success">
         <i class="bi bi-plus-circle"></i> Add Event
     </a>
