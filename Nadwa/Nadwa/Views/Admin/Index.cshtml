@@ -1,0 +1,151 @@
+﻿@model SearchQueryViewModel
+
+@{
+    ViewData["Title"] = "Admin events panel";
+    Layout = "_AdminLayout";
+}
+
+<h2 class="mb-4">Events Management</h2>
+<form asp-action="Index" asp-controller="Admin" method="get" class="row mb-4 w-auto h-auto">
+    <div class="col-md-4">
+        <div class="input-group">
+            <input asp-for="Query" class="form-control" placeholder="Search by category, name, venue or description..."/>
+        </div>
+        <span asp-validation-for="Query" class="text-danger"></span>
+    </div>
+
+    <div class="col-md-3">
+        <div class="input-group">
+            <span class="input-group-text">$</span>
+            <input asp-for="MinPrice" class="form-control" placeholder="Min Price"/>
+            <span class="input-group-text">-</span>
+            <input asp-for="MaxPrice" class="form-control" placeholder="Max Price"/>
+
+        </div>
+        <span asp-validation-for="MinPrice" class="text-danger"></span>
+        <span asp-validation-for="MaxPrice" class="text-danger"></span>
+    </div>
+
+    <div class="col-md-4">
+        <div class="input-group">
+            <input asp-for="FromDate" class="form-control"/>
+            <span class="input-group-text">-</span>
+            <input asp-for="ToDate" class="form-control"/>
+        </div>
+        <span asp-validation-for="FromDate" class="text-danger"></span>
+        <span asp-validation-for="ToDate" class="text-danger"></span>
+    </div>
+
+    <div class="col-md-1">
+        <button type="submit" class="btn btn-primary">Search</button>
+    </div>
+</form>
+
+
+<table class="table table-striped table-hover">
+    <thead>
+    <tr>
+        <th>Title</th>
+        <th>Venue</th>
+        <th>Price</th>
+        <th>Date</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    @if  (ViewBag.lst != null && ((IEnumerable<Event>)ViewBag.lst).Any())  {
+        foreach (var e in (IEnumerable<Event>)ViewBag.lst) {
+            Console.WriteLine("Events is not empty");
+            <tr>
+                <td>@e.Name</td>
+                <td>@e.Venue</td>
+                <td>@e.Price</td>
+                <td>@e.Date</td>
+                <td>
+                    <div class="d-flex gap-2">
+                        <a asp-action="EventDetails" asp-route-id="@e.Id" class="btn btn-outline-primary mt-auto view-details-link" data-event-id="@e.Id">Details</a>
+                       
+                        <a asp-action="EditEvent" asp-route-id="@e.Id" class="btn btn-sm btn-primary">
+                            <i class="bi bi-pencil-square"></i> Edit
+                        </a>
+                        <a asp-controller="Admin" asp-action="DeleteEvent" asp-route-id="@e.Id"
+                           class="btn btn-sm btn-danger"
+                           onclick="return confirm('Are you sure you want to delete this event?');">
+                            <i class="bi bi-trash3"></i> Delete
+                        </a>
+
+                    </div>
+                </td>
+            </tr>
+        }
+    }
+    @if (ViewBag.lst == null) {
+        <tr>
+            <td colspan="5" class="text-center">No events available</td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+@{
+    if (Model.Page >= 2) {
+        <a asp-action="Index" asp-route-Page="@(Model.Page - 1)"
+           asp-route-Query="@Model.Query"
+           asp-route-MinPrice="@Model.MinPrice"
+           asp-route-MaxPrice="@Model.MaxPrice"
+           asp-route-FromDate="@Model.FromDate"
+           asp-route-ToDate="@Model.ToDate"
+           class="btn btn-outline-secondary">
+            Prev
+        </a>
+    }
+}
+
+@if (ViewBag.lst != null && ((IEnumerable<Event>)ViewBag.lst).Any()) {
+    <a asp-action="Index" asp-route-Page="@(Model.Page + 1)"
+       asp-route-Query="@Model.Query"
+       asp-route-MinPrice="@Model.MinPrice"
+       asp-route-MaxPrice="@Model.MaxPrice"
+       asp-route-FromDate="@Model.FromDate"
+       asp-route-ToDate="@Model.ToDate"
+       class="btn btn-outline-secondary">
+        Next
+    </a>
+}
+
+<div class="mb-2 text-end">
+    <a asp-action="CreateEvent" asp-controller="Admin" class="btn btn-success">
+        <i class="bi bi-plus-circle"></i> Add Event
+    </a>
+</div>
+
+<div class="modal fade" id="eventDetailsModal" tabindex="-1" role="dialog" aria-labelledby="eventDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content bg-dark text-dark">
+            <div class="modal-body" id="eventDetailsContent">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+
+    <script>
+    $(document).ready(function () {
+        $('.view-details-link').on('click', function (e) {
+            e.preventDefault();
+            var eventId = $(this).data('event-id');
+            var url = '@Url.Action("EventDetails", "Admin")?id=' + eventId;
+
+            $('#eventDetailsContent').load(url, function () {
+                $('#eventDetailsModal').modal('show');
+            });
+        });
+    });
+</script>
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

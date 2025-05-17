@@ -1,0 +1,79 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    ViewData["Title"] = "Home Page";
+    Layout = "_Layout";
+}
+@inject SignInManager<ApplicationUser> SignInManager
+
+<div class="d-flex flex-column justify-content-center align-items-center min-vh-100 text-center text-white px-3"
+     style="margin-top: -20vh;">
+
+    <h1 class="display-1 fw-bold mb-4" style="font-size: 6rem; background: linear-gradient(to right, #f79c42, #f3378c); -webkit-background-clip: text; color: transparent;">
+        <span id="nadwa" class="d-block"></span>
+        <span id="bookingapp" class="d-block" style="font-size: 3rem;"></span>
+    </h1>
+
+    <div class="mt-4 d-flex gap-4 flex-wrap justify-content-center">
+        @{
+            if (!SignInManager.IsSignedIn(User)) {
+                <a class="btn btn-primary btn-sm px-3 py-2 fw-semibold fs-5" asp-area="Identity" asp-page="/Account/Register">
+                    Sign Up
+                </a>
+                <a class="btn btn-primary btn-sm px-3 py-2 fw-semibold fs-5" asp-area="Identity" asp-page="/Account/Login">
+                    Sign In
+                </a>
+            }
+        }
+
+
+        @{
+            if (SignInManager.IsSignedIn(User) && User.IsInRole("Admin")) {
+                <a class="btn px-3 py-2 fw-semibold fs-5"
+                   style="background: linear-gradient(to right, #34c759, #30d158); color: white;"
+                   asp-area=""
+                   asp-controller="Admin"
+                   asp-action="Index">
+                    Go to admin panel
+                </a>
+            }
+            else if (SignInManager.IsSignedIn(User) && User.IsInRole("User")) {
+                <a class="btn px-3 py-2 fw-semibold fs-5" style="background: linear-gradient(to right, #34c759, #30d158); color: white;" asp-controller="User" asp-action="UserEvents">
+                    Booked events
+                </a>
+            }
+        }
+        @{
+            if (!SignInManager.IsSignedIn(User) || SignInManager.IsSignedIn(User) && User.IsInRole("User")) {
+                <a class="btn px-3 py-2 fw-semibold fs-5" style="background: linear-gradient(to right, #34c759, #30d158); color: white;" asp-controller="User" asp-action="AllEvents">
+                    See all events
+                </a>
+            }   
+            
+        }
+      
+    </div>
+
+
+</div>
+
+
+<script>
+    const text = "NADWA";
+    const writer = document.getElementById("nadwa");
+
+    const text2 = "an event booking website";
+    const writer2 = document.getElementById("bookingapp");
+
+    function type(text, writer, i = 0) {
+        if (i < text.length) {
+            writer.textContent += text.charAt(i);
+            i++;
+            setTimeout(() => type(text, writer, i), 75);
+        }
+    }
+
+    type(text, writer);
+    setTimeout(() => type(text2, writer2), 500); 
+
+</script>
