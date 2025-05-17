@@ -9,30 +9,34 @@ using Nadwa.Utilites;
 
 namespace Nadwa.Services.Event;
 
-public class EventService : IEventService {
+public class EventService : IEventService
+{
     private readonly IUnitOfWork _unitOfWork;
-    private readonly Cloudinary _cloudinary;
+    private readonly IWebHostEnvironment _env;
 
-
-    public EventService(IUnitOfWork unitOfWork, Cloudinary cloudinary) {
+    public EventService(IUnitOfWork unitOfWork, IWebHostEnvironment env)
+    {
         _unitOfWork = unitOfWork;
-        _cloudinary = cloudinary;
+        _env = env;
     }
 
-    public async Task<IEnumerable<Models.Event>>? GetEventsPageAsync(int page = 1) {
+    public async Task<IEnumerable<Models.Event>>? GetEventsPageAsync(int page = 1)
+    {
         return await _unitOfWork
             .EventRepository
             .GetPagedAsync(page);
     }
 
 
-    public async Task<IEnumerable<Models.Event>>? GetAllEventsAsync() {
+    public async Task<IEnumerable<Models.Event>>? GetAllEventsAsync()
+    {
         return await _unitOfWork
             .EventRepository
             .GetAllAsync();
     }
 
-    public async Task<Models.Event?> GetEventByIdAsync(string id) {
+    public async Task<Models.Event?> GetEventByIdAsync(string id)
+    {
         var res = await _unitOfWork
             .EventRepository
             .GetFirstOrDefaultAsync(predicate: u => u.Id == id);
@@ -41,7 +45,8 @@ public class EventService : IEventService {
     }
 
 
-    public async Task<string> UpdateEvent(Models.Event? updatedEvent, IFormFile? file) {
+    public async Task<string> UpdateEvent(Models.Event? updatedEvent, IFormFile? file)
+    {
         var e = await _unitOfWork
             .EventRepository
             .GetFirstOrDefaultAsync(predicate: u => u.Id == updatedEvent.Id);
@@ -55,24 +60,10 @@ public class EventService : IEventService {
         e.Date = DateTime.SpecifyKind(updatedEvent.Date, DateTimeKind.Local).ToUniversalTime();
         e.UpdatedAt = DateTime.UtcNow;
 
-        if (!string.IsNullOrWhiteSpace(e.ImageId)) {
-            var deletionParams = new DeletionParams(e.ImageId);
-            await _cloudinary.DestroyAsync(deletionParams);
-        }
-
-        if (file != null) {
-            var fileName = Guid.NewGuid().ToString();
-            var extension = Path.GetExtension(file.FileName);
-            if (extension is not ("jpg" or "png" or "jpeg"))
-                return Messages.Fail.EventUpdate;
-
-            var uploadParams = new ImageUploadParams {
-                File = new FileDescription(fileName + extension, file.OpenReadStream())
-            };
-
-            var uploadResult = await _cloudinary.UploadAsync(uploadParams);
-            e.ImageUrl = uploadResult.SecureUrl.ToString();
-            e.ImageId = uploadResult.PublicId.ToString();
+        if (e.ImageUrl != null)
+        {
+            await DeleteImageAsync(e.ImageUrl);
+            await SaveImageAsync(file, e);
         }
 
         _unitOfWork.EventRepository.Update(e);
@@ -80,24 +71,58 @@ public class EventService : IEventService {
         return Messages.Success.EventUpdate;
     }
 
-    public async Task<string> AddEventAsync(Models.Event? e, IFormFile? file) {
+    public async Task DeleteImageAsync(string imageUrl)
+    {
+        if (!string.IsNullOrWhiteSpace(imageUrl))
+        {
+            var fileName = Path.GetFileName(imageUrl);
+
+            if (!string.IsNullOrEmpty(fileName))
+            {
+                var imageDirectory = Path.Combine(_env.WebRootPath, "images");
+                var imagePath = Path.Combine(imageDirectory, fileName);
+
+                if (File.Exists(imagePath))
+                {
+                    File.Delete(imagePath);
+                }
+            }
+        }
+    }
+
+
+    private async Task SaveImageAsync(IFormFile? file, Models.Event e)
+    {
+        if (file != null)
+        {
+            var fileName = Guid.NewGuid().ToString();
+            var extension = Path.GetExtension(file.FileName);
+
+            var imageDirectory = Path.Combine(_env.WebRootPath, "images");
+            if (!Directory.Exists(imageDirectory))
+            {
+                Directory.CreateDirectory(imageDirectory);
+            }
+
+            var filePath = Path.Combine(imageDirectory, fileName + extension);
+
+            await using (var fileStream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(fileStream);
+            }
+
+            e.ImageUrl = "/images/" + fileName + extension; 
+        }
+    }
+
+    public async Task<string> AddEventAsync(Models.Event? e, IFormFile? file)
+    {
         if (e is null)
             return Messages.Fail.AddEvent;
 
         e.Date = DateTime.SpecifyKind(e.Date, DateTimeKind.Local).ToUniversalTime();
 
-        if (file != null) {
-            var fileName = Guid.NewGuid().ToString();
-            var extension = Path.GetExtension(file.FileName);
-
-            var uploadParams = new ImageUploadParams {
-                File = new FileDescription(fileName + extension, file.OpenReadStream())
-            };
-
-            var uploadResult = await _cloudinary.UploadAsync(uploadParams);
-            e.ImageUrl = uploadResult.SecureUrl.ToString();
-            e.ImageId = uploadResult.PublicId.ToString();
-        }
+        await SaveImageAsync(file, e);
 
 
         await _unitOfWork
@@ -108,19 +133,22 @@ public class EventService : IEventService {
         return Messages.Success.AddEvent;
     }
 
-    public async Task<string> DeleteEvent(Models.Event? e) {
+    public async Task<string> DeleteEvent(Models.Event? e)
+    {
         if (e is null)
             return Messages.Fail.EventDelete;
 
-        if (e.Date <= DateTime.UtcNow && e.Attendees is not null) {
-            foreach (var user in e.Attendees) {
+        if (e.Date <= DateTime.UtcNow && e.Attendees is not null)
+        {
+            foreach (var user in e.Attendees)
+            {
                 user.Balance += e.Price;
             }
         }
 
-        if (!string.IsNullOrEmpty(e.ImageId)) {
-            var deletionParams = new DeletionParams(e.ImageId);
-            var result = await _cloudinary.DestroyAsync(deletionParams);
+        if (!string.IsNullOrEmpty(e.ImageUrl))
+        {
+          await  DeleteImageAsync(e.ImageUrl);
         }
 
         _unitOfWork
@@ -132,7 +160,8 @@ public class EventService : IEventService {
     }
 
     public async Task<IEnumerable<Models.Event>> GetEventsPagedUsingSearchQueryAsync(int page = 1,
-        string? searchQuery = null, IEnumerable<Models.Event>? events = null) {
+        string? searchQuery = null, IEnumerable<Models.Event>? events = null)
+    {
         if (string.IsNullOrWhiteSpace(searchQuery)) return [];
         searchQuery = searchQuery.ToLower();
 
@@ -151,7 +180,8 @@ public class EventService : IEventService {
 
 
     public async Task<IEnumerable<Models.Event>> GetEventsPagedUsingPriceFilter(decimal minPrice = decimal.Zero,
-        decimal maxPrice = 10000000000, int page = 1, IEnumerable<Models.Event>? events = null) {
+        decimal maxPrice = 10000000000, int page = 1, IEnumerable<Models.Event>? events = null)
+    {
         var results = await _unitOfWork.EventRepository.GetPagedAsync(page,
             predicate: e =>
                 e.Price <= maxPrice && e.Price >= minPrice,
@@ -162,7 +192,8 @@ public class EventService : IEventService {
     }
 
     public async Task<IEnumerable<Models.Event>> GetEventsPagedUsingDateRangeAsync(int page = 1, DateTime? from = null,
-        DateTime? to = null, IEnumerable<Models.Event>? events = null) {
+        DateTime? to = null, IEnumerable<Models.Event>? events = null)
+    {
         var results = await _unitOfWork.EventRepository.GetPagedAsync(page,
             predicate: e =>
                 e.Date <= to && e.Date >= from,
@@ -172,7 +203,8 @@ public class EventService : IEventService {
         return results;
     }
 
-    public async Task<IEnumerable<Models.ApplicationUser>?> GetEventAttendeesPagedAsync(Models.Event e, int page = 1) {
+    public async Task<IEnumerable<Models.ApplicationUser>?> GetEventAttendeesPagedAsync(Models.Event e, int page = 1)
+    {
         var results = await _unitOfWork.ApplicationUserRepository.GetPagedAsync(page,
             enumerable: e.Attendees
         );
@@ -181,7 +213,8 @@ public class EventService : IEventService {
     }
 
     public async Task<IEnumerable<Models.Event>> GetEventsUsingSearchViewModelAsync(
-        SearchQueryViewModel? searchQueryViewModel, IEnumerable<Models.Event>? events = null) {
+        SearchQueryViewModel? searchQueryViewModel, IEnumerable<Models.Event>? events = null)
+    {
         searchQueryViewModel ??= new SearchQueryViewModel();
 
         if (searchQueryViewModel.FromDate.HasValue)
@@ -201,8 +234,10 @@ public class EventService : IEventService {
 
 
         IEnumerable<Models.Event> lst = new List<Models.Event>();
-        lst = events != null ? events.Intersect(byPrice).Intersect(byDate).ToList() : byPrice.Intersect(byDate).ToList();
-        
+        lst = events != null
+            ? events.Intersect(byPrice).Intersect(byDate).ToList()
+            : byPrice.Intersect(byDate).ToList();
+
         if (!searchQueryViewModel.Query.IsNullOrEmpty())
             lst = lst.Intersect(byQuery);
 
@@ -212,7 +247,7 @@ public class EventService : IEventService {
             enumerable:
             lst
         );
-        
+
         return filtered;
     }
 }

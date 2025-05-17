@@ -1,4 +1,3 @@
-using CloudinaryDotNet;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Nadwa.Data;
@@ -15,7 +14,7 @@ var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ??
                        throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseLazyLoadingProxies().UseNpgsql(connectionString));
+    options.UseLazyLoadingProxies().UseSqlServer(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
@@ -29,17 +28,11 @@ builder.Services.AddStackExchangeRedisCache(option => {
     }
 );
 
-var cloudinary = new Cloudinary( builder.Configuration.GetConnectionString("Cloudinary")) {
-    Api = {
-        Secure = true
-    }
-};
 
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 
-builder.Services.AddSingleton(cloudinary);
 builder.Services.AddScoped<IRedisCacheService, RedisCacheService>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IApplicationUserService, ApplicationUserService>();

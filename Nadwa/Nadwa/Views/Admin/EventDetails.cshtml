@@ -7,11 +7,11 @@
 
 
         <div class="event-image-container">
-            @if (!string.IsNullOrEmpty(@Model.ImageUrl)) {
+            @if (!string.IsNullOrEmpty(Model.ImageUrl)) {
                 <img src="@Model.ImageUrl" class="card-img-top rounded-top-4" alt="@Model.Name"/>
             }
             else {
-                <img src="https://placehold.in/400x400" class="card-img-top rounded-top-4"/>
+                <img src="https://placehold.in/400x400" class="card-img-top rounded-top-4" alt="NONE"/>
             }
         </div>
         <div class="event-details-content">

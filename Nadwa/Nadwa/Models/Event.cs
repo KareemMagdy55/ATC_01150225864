@@ -30,7 +30,6 @@ public class Event {
     public decimal Price { get; set; }
 
     public string? ImageUrl { get; set; }
-    public string? ImageId { get; set; }
     
     public virtual ICollection<ApplicationUser>? Attendees { get; set; } = new List<ApplicationUser>();
     
