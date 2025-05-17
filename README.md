@@ -32,6 +32,8 @@ Clone or download the project files to your local machine.
    - `Update-Database`
 
 ### 3. Redis Caching (optional)
+1. Open docker desktop.
+2. run this command in you CMD or terminal "docker-compose up nadwa" 
 
 ### 4. Login
 
