@@ -20,6 +20,18 @@ html {
 body {
   margin-bottom: 60px;
 }
+.special-button {
+    background: linear-gradient(to right, #34c759, #30d158);
+    color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.special-button:hover {
+    background: linear-gradient(to right, #40e068, #3ae374);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
 .overlay-background {
   position: fixed;
   top: 0;

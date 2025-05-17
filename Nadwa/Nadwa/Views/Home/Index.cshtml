@@ -2,6 +2,7 @@
 @using Microsoft.AspNetCore.Mvc.TagHelpers
 @{
     ViewData["Title"] = "Home Page";
+    Layout = "_Layout";
 }
 @inject SignInManager<ApplicationUser> SignInManager
 
@@ -49,6 +50,9 @@
                 </a>
             }   
         }
+        <button type="button" class="btn btn-light btn-lg">
+            <span style="font-weight: bold; color: #f3378c;">AI</span> Powered Search
+        </button>
     </div>
 
 
