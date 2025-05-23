@@ -8,6 +8,7 @@ To run this project, you will need the following:
 
 1. **RIDER** (Recommended) or **Visual Studio (VS)** with .NET 9.0
 2. **Docker Desktop** (Optional, for Redis caching)
+3. **Microsoft SQL server**
 
 ## Setup Instructions
 
